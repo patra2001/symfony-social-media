@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Student{% endblock %}
+
+{% block body %}
+    <div class="container py-4">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title">Add Student</h1>
+
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                <div class="mb-3">
+                    {{ form_row(form.name) }}
+                </div>
+
+                <h4>Subjects</h4>
+                <ul id="subjects-list" class="list-unstyled" data-prototype="{{ form_widget(form.subjects.vars.prototype)|e('html_attr') }}">
+                    {% for subject in form.subjects %}
+                        <li class="mb-3 border rounded p-3">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-6">
+                                    {{ form_row(subject.name) }}
+                                </div>
+                                <div class="col-md-3">
+                                    {{ form_row(subject.marks) }}
+                                </div>
+                                <div class="col-md-3 text-end">
+                                    <button type="button" class="btn btn-sm btn-outline-danger remove-subject">Remove</button>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <div class="mb-3">
+                    <button type="button" id="add-subject" class="btn btn-sm btn-primary">+ Add subject</button>
+                </div>
+
+                <div>
+                    <button class="btn btn-success">Save</button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+        {% if students is defined and students|length > 0 %}
+        <div class="container py-4">
+                <div class="card">
+                        <div class="card-body">
+                                <h2 class="card-title">Existing Students</h2>
+                                <div class="table-responsive">
+                                        <table class="table table-sm table-striped">
+                                                <thead>
+                                                        <tr>
+                                                                <th>#</th>
+                                                                <th>Name</th>
+                                                                <th>Subjects</th>
+                                                                <th class="text-end">Actions</th>
+                                                        </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for s in students %}
+                                                        <tr>
+                                                                <td>{{ s.id }}</td>
+                                                                <td>{{ s.name }}</td>
+                                                                <td>{{ s.subjects|length }}</td>
+                                                                <td class="text-end">
+                                                                        <a href="{{ path('student_edit', {'id': s.id}) }}" class="btn btn-sm btn-primary">Edit</a>
+                                                                        <form method="post" action="{{ path('student_delete', {'id': s.id}) }}" style="display:inline-block; margin-left:6px;" onsubmit="return confirm('Delete this student?');">
+                                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ s.id) }}">
+                                                                                <button class="btn btn-sm btn-danger">Delete</button>
+                                                                        </form>
+                                                                </td>
+                                                        </tr>
+                                                {% else %}
+                                                        <tr>
+                                                                <td colspan="4">No students yet.</td>
+                                                        </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                        </table>
+                                </div>
+                        </div>
+                </div>
+        </div>
+        {% endif %}
+{% block javascripts %}
+    {{ encore_entry_script_tags('student') }}
+{% endblock %}
+{% endblock %}

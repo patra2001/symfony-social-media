@@ -1,0 +1,6 @@
+controllers:
+    resource: ../src/Controller/
+    type: attribute
+contact:
+    path: /contact/
+    controller: App\Controller\FormController::index

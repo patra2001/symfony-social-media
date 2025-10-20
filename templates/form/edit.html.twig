@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit enquiry{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+   <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+         <div class="card shadow-sm">
+            <div class="card-body">
+               <h3 class="card-title mb-4">Edit enquiry</h3>
+            <style>
+               /* Ensure form error messages are visible in Bootstrap danger color */
+               .form-errors,
+               .invalid-feedback,
+               .form-text.text-danger {
+                  color: #dc3545; /* Bootstrap danger */
+               }
+            </style>
+               {# Flash messages #}
+               {% for label, messages in app.flashes %}
+                  {% for message in messages %}
+                     <div class="alert alert-{{ label }}">{{ message }}</div>
+                  {% endfor %}
+               {% endfor %}
+
+               {{ form_start(form, {attr: {novalidate: 'novalidate', class: 'needs-validation'}, multipart: true}) }}
+
+            {{ form_row(form.name) }}
+            {{ form_row(form.email) }}
+            {{ form_row(form.phone) }}
+
+            {% if enquiry.profile %}
+               <div class="mb-3">
+                  <label class="form-label">Current file</label>
+                  <div><a href="{{ asset('assets/profiles/' ~ enquiry.profile) }}" target="_blank">{{ enquiry.profile }}</a></div>
+               </div>
+            {% endif %}
+
+            {{ form_row(form.profile) }}
+            {{ form_row(form.message) }}
+
+            <div class="d-flex justify-content-between">
+               <a href="{{ path('contact_list') }}" class="btn btn-secondary">Back</a>
+               <button class="btn btn-primary">Save</button>
+            </div>
+
+            {{ form_end(form) }}
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{% block javascripts %}
+    {{ encore_entry_script_tags('contact') }}
+{% endblock %}
+{% endblock %}
+

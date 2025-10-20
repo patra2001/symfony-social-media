@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contact form{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+   <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+         <div class="card shadow-sm">
+            <div class="card-body">
+               <h3 class="card-title mb-4">Contact us</h3>
+                <a href="{{ path('contact_list') }}" class="btn btn-secondary mb-3">
+                    ← Back to list
+                </a>
+               {# Flash messages #}
+               {% for label, messages in app.flashes %}
+                  {% for message in messages %}
+                     <div class="alert alert-{{ label }}">
+                        {{ message }}
+                     </div>
+                  {% endfor %}
+               {% endfor %}
+
+               {# Render the form with individual fields so we can apply Bootstrap classes #}
+               {{ form_start(form, {attr: {novalidate: 'novalidate', class: 'needs-validation'}, multipart: true}) }}
+
+               {{ form_row(form.name) }}
+               {{ form_row(form.email) }}
+               {{ form_row(form.phone) }}
+               {{ form_row(form.profile) }}
+               {{ form_row(form.message) }}
+
+               <div class="d-grid">
+                  <button type="submit" class="btn btn-primary btn-lg">Send message</button>
+               </div>
+
+               {{ form_end(form) }}
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{% block javascripts %}
+    {{ encore_entry_script_tags('contact') }}
+{% endblock %}
+{% endblock %}
+

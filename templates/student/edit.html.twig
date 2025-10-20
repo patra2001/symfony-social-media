@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Student{% endblock %}
+
+{% block body %}
+    <div class="container py-4">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title">Edit Student</h1>
+
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                <div class="mb-3">
+                    {{ form_row(form.name) }}
+                </div>
+
+                <h4>Subjects</h4>
+                <ul id="subjects-list" class="list-unstyled" data-prototype="{{ form_widget(form.subjects.vars.prototype)|e('html_attr') }}">
+                    {% for subject in form.subjects %}
+                        <li class="mb-3 border rounded p-3">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-6">
+                                    {{ form_row(subject.name) }}
+                                </div>
+                                <div class="col-md-3">
+                                    {{ form_row(subject.marks) }}
+                                </div>
+                                <div class="col-md-3 text-end">
+                                    <button type="button" class="btn btn-sm btn-outline-danger remove-subject">Remove</button>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <div class="mb-3">
+                    <button type="button" id="add-subject" class="btn btn-sm btn-primary">+ Add another subject</button>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success">Save</button>
+                    <a href="{{ path('student_new') }}" class="btn btn-secondary">Cancel</a>
+
+                    {# Delete form #}
+                    <form method="post" action="{{ path('student_delete', {'id': student.id}) }}" onsubmit="return confirm('Are you sure you want to delete this student?');" style="display:inline">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ student.id) }}">
+                        <button class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% block javascripts %}
+    {{ encore_entry_script_tags('student') }}
+{% endblock %}
+
+{% endblock %}

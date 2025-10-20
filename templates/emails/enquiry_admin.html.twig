@@ -1,0 +1,10 @@
+<h2>New Enquiry</h2>
+<p>A new enquiry was submitted on the website:</p>
+<ul>
+    <li><strong>Name:</strong> {{ enquiry.name }}</li>
+    <li><strong>Email:</strong> {{ enquiry.email }}</li>
+    <li><strong>Phone:</strong> {{ enquiry.phone }}</li>
+    <li><strong>Profile:</strong> {{ enquiry.profile }}</li>
+</ul>
+<h3>Message</h3>
+<p>{{ enquiry.message|nl2br }}</p>
