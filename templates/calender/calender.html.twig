@@ -1,0 +1,6 @@
+<div
+    id="calendar"
+    class="profile-calendar"
+    data-author-id="{{ profile_user is defined ? profile_user.id : app.user.id }}"
+    data-filter="{{ app.request.query.get('calendar_filter', 'created') }}"
+></div>

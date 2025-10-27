@@ -16,6 +16,7 @@ class StudentType extends AbstractType
         $builder
             ->add('name', TextType::class, [
                 'label' => 'Student Name',
+                'label_attr' => ['class' => 'form-label'],
                 'attr' => ['class' => 'form-control'],
                 ])
             ->add('subjects', CollectionType::class, [

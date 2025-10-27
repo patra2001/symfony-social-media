@@ -1,0 +1,68 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Login - Social Media{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h2 class="card-title text-center mb-4">Sign In</h2>
+
+                    {% if error %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong>Login Failed!</strong><br>
+                            {{ error.messageKey|trans(error.messageData, 'security') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endif %}
+
+                    <form method="post" action="{{ path('app_login') }}" novalidate>
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                        
+                        <div class="mb-3">
+                            <label for="inputEmail" class="form-label">Email Address</label>
+                            <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="inputPassword" class="form-label">Password</label>
+                            <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" name="_remember_me" id="rememberMe" class="form-check-input">
+                            <label class="form-check-label" for="rememberMe">Remember me</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3">Sign In</button>
+                    </form>
+
+                    <hr>
+
+                    <div class="text-center">
+                        <p class="mb-2">Don't have an account? <a href="{{ path('app_register') }}">Sign Up</a></p>
+                        <p class="mb-0"><a href="#" class="text-muted small">Forgot password?</a></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Verification Section -->
+            <div class="card mt-3 border-info">
+                <div class="card-body p-4">
+                    <h5 class="card-title">Didn't receive verification email?</h5>
+                    <p class="card-text small">Enter your email below to resend the verification link.</p>
+                    <form method="post" action="{{ path('app_resend_verification') }}">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('resend_verification') }}">
+                        <div class="input-group">
+                            <input type="email" class="form-control" placeholder="your@email.com" name="email" required>
+                            <button class="btn btn-outline-info" type="submit">Resend</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

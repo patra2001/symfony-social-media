@@ -14,8 +14,8 @@ class SubjectType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name', TextType::class, ['label' => 'Subject','attr' => ['class' => 'form-control']])
-            ->add('marks', IntegerType::class, ['label' => 'Marks','attr' => ['class' => 'form-control']])
+            ->add('name', TextType::class, ['label' => 'Subject','label_attr' => ['class' => 'form-label'],'attr' => ['class' => 'form-control']])
+            ->add('marks', IntegerType::class, ['label' => 'Marks','label_attr' => ['class' => 'form-label'],'attr' => ['class' => 'form-control']])
         ;
     }
 

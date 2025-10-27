@@ -23,6 +23,9 @@ Encore
     .addEntry('app', './assets/app.js')
     .addEntry('contact', './assets/js/contact.js') // Added contact.js as a separate entry
     .addEntry('student', './assets/js/student.js') // Added student.js as a separate entry
+    .addEntry('calender', './assets/js/calender.js') // Added calender.js as a separate entry
+    .addEntry('profile', './assets/js/profile.js') // Added profile.js as a separate entry
+    // .addStyleEntry('calender_styles', './assets/css/calender.css')
 
     // enables the Symfony UX Stimulus bridge (used in assets/bootstrap.js)
     .enableStimulusBridge('./assets/controllers.json')

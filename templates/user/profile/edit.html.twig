@@ -1,0 +1,172 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Profile - Social Network{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil-square"></i> Edit Profile
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'needs-validation'}}) }}
+
+                    <!-- Email (Read-only) -->
+                    <div class="mb-3">
+                        {{ form_row(form.email) }}
+                        {% if form.email.vars.help %}
+                            <small class="form-text text-muted d-block mt-1">
+                                {{ form.email.vars.help }}
+                            </small>
+                        {% endif %}
+                    </div>
+
+                    <!-- First Name -->
+                    <div class="mb-3">
+                        {{ form_row(form.firstName) }}
+                        <div
+                            class="invalid-feedback d-none js-custom-feedback"
+                            data-feedback-for="{{ form.firstName.vars.id }}"
+                            data-custom-message="First name can not be empty."
+                        ></div>
+                        {% if form.firstName.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.firstName.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="mb-3">
+                        {{ form_row(form.lastName) }}
+                        <div
+                            class="invalid-feedback d-none js-custom-feedback"
+                            data-feedback-for="{{ form.lastName.vars.id }}"
+                            data-custom-message="Last name can not be empty."
+                        ></div>
+                        {% if form.lastName.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.lastName.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-3">
+                        {{ form_row(form.password.first) }}
+                        <div
+                            class="invalid-feedback d-none js-password-feedback js-custom-feedback"
+                            data-feedback-for="{{ form.password.first.vars.id }}"
+                            data-custom-message="Password can not be empty."
+                        ></div>
+                        {% if form.password.first.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password.first.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="mb-3">
+                        {{ form_row(form.password.second) }}
+                        <div
+                            class="invalid-feedback d-none js-password-feedback js-custom-feedback"
+                            data-feedback-for="{{ form.password.second.vars.id }}"
+                            data-custom-message="Confirm password can not be empty."
+                        ></div>
+                        {% if form.password.second.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password.second.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Bio -->
+                    <div class="mb-3">
+                        {{ form_row(form.bio) }}
+                        {% if form.bio.vars.help %}
+                            <small class="form-text text-muted d-block mt-1">
+                                {{ form.bio.vars.help }}
+                            </small>
+                        {% endif %}
+                        {% if form.bio.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.bio.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Current Profile Image -->
+                    {% if user.profileImage %}
+                        <div class="mb-3">
+                            <label class="form-label">Current Profile Picture</label>
+                            <div class="text-center p-3 bg-light rounded">
+                                <img src="/uploads/profiles/{{ user.profileImage }}" 
+                                     alt="{{ user.fullName }}" 
+                                     class="img-fluid rounded"
+                                     style="max-width: 150px; height: 150px; object-fit: cover;">
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Profile Image Upload -->
+                    <div class="mb-4">
+                        {{ form_row(form.profileImage) }}
+                        {% if form.profileImage.vars.help %}
+                            <small class="form-text text-muted d-block mt-1">
+                                {{ form.profileImage.vars.help }}
+                            </small>
+                        {% endif %}
+                        {% if form.profileImage.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.profileImage.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Form Errors -->
+                    {% if form_errors(form)|length > 0 %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            {{ form_errors(form) }}
+                        </div>
+                    {% endif %}
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-2 justify-content-between">
+                        <a href="{{ path('app_profile', {'id': user.id}) }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Save Changes
+                        </button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+        {{ encore_entry_script_tags('profile') }}
+{% endblock %}

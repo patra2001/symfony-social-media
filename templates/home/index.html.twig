@@ -1,0 +1,53 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Home - Social Media{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    {% if app.user %}
+        <div class="text-center">
+            <h1 class="mb-4">Welcome back, {{ app.user.firstName }}! 👋</h1>
+            <p class="lead mb-4">Ready to share your thoughts and connect with friends?</p>
+            <a href="{{ path('app_dashboard') }}" class="btn btn-primary btn-lg">Go to Dashboard</a>
+        </div>
+    {% else %}
+        <div class="row align-items-center min-vh-75">
+            <div class="col-md-6">
+                <h1 class="display-4 mb-4">Connect & Share</h1>
+                <p class="lead mb-4">Join our community to share your thoughts, connect with friends, and discover amazing content.</p>
+                <div class="btn-group gap-2" role="group">
+                    <a href="{{ path('app_register') }}" class="btn btn-primary btn-lg">Get Started</a>
+                    <a href="{{ path('app_login') }}" class="btn btn-outline-primary btn-lg">Sign In</a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="bg-light p-5 rounded text-center">
+                    <h2 class="mb-4">📱 Social Media Project</h2>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-3">
+                            <h5>✨ Share Posts</h5>
+                            <p>Express yourself with text and images</p>
+                        </li>
+                        <li class="mb-3">
+                            <h5>❤️ Like & Comment</h5>
+                            <p>Engage with the community</p>
+                        </li>
+                        <li class="mb-3">
+                            <h5>👥 Follow Friends</h5>
+                            <p>Stay updated with their activities</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .min-vh-75 {
+        min-height: 75vh;
+        display: flex;
+        align-items: center;
+    }
+</style>
+{% endblock %}
