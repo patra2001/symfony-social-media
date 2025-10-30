@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Albums{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="mb-3">Albums</h1>
+        <div id="albums-list" {{ react_component('AlbumsList') }}></div>
+    </div>
+{% endblock %}

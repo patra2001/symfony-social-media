@@ -33,8 +33,10 @@ class AuthController extends AbstractController
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
+        // echo "is submit:". $form->isSubmitted()??'no';
+        // echo "is valid:". $form->isValid()??'no'; die;
+        if ($form->isSubmitted() && !$form->isValid()) {
+            // echo "hello";die;
             // Check if email already exists
             $existingUser = $userRepository->findOneBy(['email' => $user->getEmail()]);
             if ($existingUser) {
@@ -44,6 +46,7 @@ class AuthController extends AbstractController
 
             // Hash password
             $plainPassword = $form->get('plainPassword')->getData();
+            // echo $plainPassword; die;
             $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
             $user->setPassword($hashedPassword);
 

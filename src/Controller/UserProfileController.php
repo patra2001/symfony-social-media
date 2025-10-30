@@ -65,7 +65,6 @@ class UserProfileController extends AbstractController
             $profileImageFile = $form->get('profileImage')->getData();
 
             $plainPassword = $form->get('password')->getData();
-            $confirmPassword = $form->get('confirmPassword')->getData();
 
             if ($profileImageFile) {
                 $originalFilename = pathinfo($profileImageFile->getClientOriginalName(), PATHINFO_FILENAME);
@@ -83,15 +82,12 @@ class UserProfileController extends AbstractController
 
             // Update timestamp
             $user->setUpdatedAt(new \DateTimeImmutable());
-            if ($plainPassword && $plainPassword !== $confirmPassword) {
-            $this->addFlash('error', 'Passwords do not match.');
-            return $this->redirectToRoute('app_profile_edit');
-            } elseif ($plainPassword) {
-            // encode password and save
-            $encodedPassword = $passwordHasher->hashPassword($user, $plainPassword);
-            $user->setPassword($encodedPassword);
+
+            if (!empty($plainPassword)) {
+                $encodedPassword = $passwordHasher->hashPassword($user, $plainPassword);
+                $user->setPassword($encodedPassword);
             }
-            
+
             $this->entityManager->flush();
             $this->addFlash('success', 'Profile updated successfully!');
 
@@ -103,8 +99,15 @@ class UserProfileController extends AbstractController
             'user' => $user,
         ]);
          } catch (\Exception $e) {
-            $this->addFlash('danger', $e->getMessage());
-            return $this->redirectToRoute('app_profile_edit');
+           $errorMessage = sprintf(
+        "Error: %s in %s on line %d",
+        $e->getMessage(),
+        $e->getFile(),
+        $e->getLine()
+    );
+
+    $this->addFlash('danger', $errorMessage);
+    return $this->redirectToRoute('app_profile_edit');
         }
 
     }

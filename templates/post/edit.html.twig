@@ -11,14 +11,20 @@
                     <h5 class="mb-0">Edit Post</h5>
                 </div>
                 <div class="card-body">
-                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    {{ form_start(form, {'attr': {'id' :'editPostForm', 'novalidate': 'novalidate', 'class': 'needs-validation'}}) }}
+                        <div class="mb-3">
+                            {{ form_widget(form.type) }}
+                                <div class="alert text-danger mt-2 d-none" id="typeError">
+                                </div>
+                        </div>
+
                         <div class="mb-3">
                             {{ form_widget(form.content) }}
-                            {% if form.content.vars.errors %}
-                                <div class="alert alert-danger mt-2">
-                                    {{ form_errors(form.content) }}
+                            {# {% if form.content.vars.errors %} #}
+                                <div class="alert alert-danger mt-2 d-none" id="contentError">
+                                    {# {{ form_errors(form.content) }} #}
                                 </div>
-                            {% endif %}
+                            {# {% endif %} #}
                         </div>
 
                         {% if post.image %}
@@ -33,11 +39,11 @@
                         <div class="mb-3">
                             <label>{{ 'Change Image (optional):' }}</label>
                             {{ form_widget(form.image) }}
-                            {% if form.image.vars.errors %}
-                                <div class="alert alert-danger mt-2">
-                                    {{ form_errors(form.image) }}
+                            {# {% if form.image.vars.errors %} #}
+                                <div class="alert alert-danger mt-2 d-none" id="imageError">
+                                    {# {{ form_errors(form.image) }} #}
                                 </div>
-                            {% endif %}
+                            {# {% endif %} #}
                         </div>
 
                         <div class="d-flex gap-2">
@@ -50,4 +56,69 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% block javascripts %}
+<script src="https://cdn.tiny.cloud/1/qg64hbuy7wzc6tt7oizuq4pztetrwm3y49u7badm1f9524gd/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+{{ encore_entry_script_tags('post') }}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('editPostForm');
+    const contentField = form.querySelector('[name="post[content]"]');
+    const imageField = form.querySelector('[name="post[image]"]');
+    const typeField = form.querySelector('[name="post[type]"]');
+
+    // Error divs
+    const typeErrorDiv = document.getElementById('typeError');
+    const contentErrorDiv = document.getElementById('contentError');
+    const imageErrorDiv = document.getElementById('imageError');
+
+    form.addEventListener('submit', function (event) {
+        let isValid = true;
+
+        [typeField, contentField, imageField].forEach(el => el?.classList.remove('is-invalid'));
+        [typeErrorDiv, contentErrorDiv, imageErrorDiv].forEach(div => {
+            div.textContent = '';
+            div.classList.add('d-none');
+        });
+
+        if (typeField && typeField.value.trim() === '') {
+            isValid = false;
+            typeField.classList.add('is-invalid');
+            typeErrorDiv.textContent = 'Please select a post type.';
+            typeErrorDiv.classList.remove('d-none');
+        }
+
+        const contentValue = tinymce.activeEditor ? tinymce.activeEditor.getContent({format: 'text'}).trim() : contentField.value.trim();
+        if (contentField && contentValue === '') {
+            isValid = false;
+            contentField.classList.add('is-invalid');
+            contentErrorDiv.textContent = 'Content cannot be empty.';
+            contentErrorDiv.classList.remove('d-none');
+        }
+
+        if (imageField && imageField.files.length > 0) {
+            const file = imageField.files[0];
+            const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+            if (!allowed.includes(file.type)) {
+                isValid = false;
+                imageField.classList.add('is-invalid');
+                imageErrorDiv.textContent = 'Only JPG, PNG, or WEBP images are allowed.';
+                imageErrorDiv.classList.remove('d-none');
+            } else if (file.size > 2 * 1024 * 1024) {
+                isValid = false;
+                imageField.classList.add('is-invalid');
+                imageErrorDiv.textContent = 'Image size must be less than 2MB.';
+                imageErrorDiv.classList.remove('d-none');
+            }
+        }
+
+        if (!isValid) {
+            event.preventDefault();
+            event.stopPropagation();
+            form.classList.add('was-validated');
+        }
+    });
+});
+</script>
 {% endblock %}

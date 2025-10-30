@@ -59,6 +59,42 @@
                         {% endif %}
                     </div>
 
+                    <!-- Country -->
+                    <div class="mb-3">
+                        {{ form_row(form.country) }}
+                        {% if form.country.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.country.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- State -->
+                    <div class="mb-3">
+                        {{ form_row(form.state) }}
+                        {% if form.state.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.state.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- City -->
+                    <div class="mb-3">
+                        {{ form_row(form.city) }}
+                        {% if form.city.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.city.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
                     <!-- Password -->
                     <div class="mb-3">
                         {{ form_row(form.password.first) }}

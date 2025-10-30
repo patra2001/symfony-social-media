@@ -12,10 +12,29 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 class Post
 {
+    public const TYPE_TEXT = 'text';
+    public const TYPE_IMAGE = 'image';
+    public const TYPE_VIDEO = 'video';
+    public const TYPE_LINK = 'link';
+    public const TYPE_POLL = 'poll';
+
+    public const TYPE_CHOICES = [
+        self::TYPE_TEXT,
+        self::TYPE_IMAGE,
+        self::TYPE_VIDEO,
+        self::TYPE_LINK,
+        self::TYPE_POLL,
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[ORM\Column(length: 20)]
+    #[Assert\NotBlank]
+    #[Assert\Choice(choices: self::TYPE_CHOICES)]
+    private ?string $type = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank]
@@ -52,6 +71,17 @@ class Post
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): static
+    {
+        $this->type = $type;
+        return $this;
     }
 
     public function getContent(): ?string

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\PostRepository;
+use App\Repository\FaqsRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,5 +41,15 @@ class HomeController extends AbstractController
          } catch (\InvalidArgumentException $e) {
             $this->addFlash('danger', $e->getMessage());
         }
+    }
+    #[Route('/faq', name: 'app_faq')]
+    public function faqs(FaqsRepository $faqsRepository): Response
+    {
+       $faqs = $faqsRepository->findBy(['status' => 1], ['created_at' => 'DESC']);
+
+       return $this->render('home/faq.html.twig', [
+            'user' => $this->getUser(),
+            'faqs' => $faqs,
+        ]);
     }
 }

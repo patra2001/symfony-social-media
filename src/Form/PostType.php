@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Post;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -16,13 +17,39 @@ class PostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('type', ChoiceType::class, [
+                'label' => 'Post Type',
+                'label_attr' => ['class' => 'form-label'],
+                'placeholder' => 'Select post type',
+                'choices' => [
+                    'Text Post' => Post::TYPE_TEXT,
+                    'Image Post' => Post::TYPE_IMAGE,
+                    'Video Post' => Post::TYPE_VIDEO,
+                    'Link Post' => Post::TYPE_LINK,
+                    'Poll Post' => Post::TYPE_POLL,
+                ],
+                'attr' => [
+                    'class' => 'form-select',
+                    'id' => 'post_type',
+                    'required' => true,
+                ],
+                'constraints' => [
+                    new Assert\NotBlank(['message' => 'Please choose a post type']),
+                    new Assert\Choice([
+                        'choices' => Post::TYPE_CHOICES,
+                        'message' => 'Select a valid post type',
+                    ]),
+                ],
+            ])
             ->add('content', TextareaType::class, [
                 'label' => 'What\'s on your mind?',
                 'label_attr' => ['class' => 'form-label'],
                 'attr' => [
-                    'class' => 'form-control',
+                    'class' => 'form-control tinymce',
+                    'id' => 'post_content',
                     'placeholder' => 'Share your thoughts...',
                     'rows' => 4,
+                    'required' => true,
                 ],
                 'constraints' => [
                     new Assert\NotBlank(['message' => 'Post content cannot be empty']),
@@ -37,9 +64,10 @@ class PostType extends AbstractType
             ->add('image', FileType::class, [
                 'label' => 'Add an image (optional)',
                 'label_attr' => ['class' => 'form-label'],
-                'required' => false,
+                'required' => true,
                 'attr' => [
                     'class' => 'form-control',
+                    'id' => 'post_image',
                     'accept' => 'image/*',
                 ],
                 'constraints' => [
