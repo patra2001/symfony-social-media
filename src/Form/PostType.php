@@ -6,6 +6,7 @@ use App\Entity\Post;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -83,6 +84,13 @@ class PostType extends AbstractType
                     ]),
                 ],
                 'data_class' => null,
+            ])
+            ->add('extraData', HiddenType::class, [
+                'mapped' => true,
+                'required' => false,
+                'attr' => [
+                    'id' => 'post_extraData'
+                ],
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Post',

@@ -1,5 +1,5 @@
 {% extends "base.html.twig" %}
-
+{% import 'macros/extra_data.html.twig' as extraData %}
 {% block title %}Create a New Post{% endblock %}
 
 {% block body %}
@@ -30,11 +30,40 @@
                                 </div>
                         </div>
 
+                        {# <div class="mb-3">
+                            {{ form_widget(form['extraData']) }}
+                            <label class="form-label">Additional data</label>
+                            <div id="extraPicker" class="border rounded p-3" style="cursor:pointer; min-height:48px;">
+                                <small class="text-muted" id="extraPreview">Additional data</small>
+                            </div>
+                        </div> #}
+{{ extraData.extra_data(form, extra_fields, 'createPostForm') }}
                         <div class="d-flex gap-2">
                             {{ form_widget(form.submit) }}
                             <a href="{{ path('app_post_feed') }}" class="btn btn-secondary">Cancel</a>
                         </div>
                     {{ form_end(form) }}
+
+                    <!-- Modal -->
+                    {# <div class="modal fade" id="extraModal" tabindex="-1" aria-labelledby="extraModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="extraModalLabel">Edit Extra Data</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="extraForm">
+                                        <div id="extraFieldsContainer"></div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" form="extraForm" class="btn btn-primary">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div> #}
                 </div>
             </div>
         </div>
@@ -43,7 +72,7 @@
 {% endblock %}
 
 {% block javascripts %}
-<script src="https://cdn.tiny.cloud/1/qg64hbuy7wzc6tt7oizuq4pztetrwm3y49u7badm1f9524gd/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+{# <script src="https://cdn.tiny.cloud/1/qg64hbuy7wzc6tt7oizuq4pztetrwm3y49u7badm1f9524gd/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script> #}
         {{ encore_entry_script_tags('post') }}
 
 <script>
@@ -103,6 +132,85 @@ document.addEventListener('DOMContentLoaded', function () {
             event.stopPropagation();
             form.classList.add('was-validated');
         }
+    });
+
+    /* EXTRA modal logic */
+    const extraPicker = document.getElementById('extraPicker');
+    const extraPreview = document.getElementById('extraPreview');
+    const hiddenExtra = form.querySelector('[name="post[extraData]"]');
+
+    const extraFields = {{ extra_fields|json_encode|raw }};
+
+    function formatPreview(data) {
+        if (!data || !Object.keys(data).length) return 'Add web url, data and others';
+        let html = '';
+        for (let key in data) {
+            const rawName = key.replace(/_/g, '-');
+            html += rawName + ': ' + data[key] + '<br>';
+        }
+        return html;
+    }
+
+    try {
+        let initial = {};
+        if (hiddenExtra && hiddenExtra.value) {
+            initial = JSON.parse(hiddenExtra.value);
+        }
+        extraPreview.innerHTML = formatPreview(initial);
+    } catch (e) {
+        //error handing
+    }
+
+    extraPicker.addEventListener('click', function () {
+        const firstKey = Object.keys(extraFields)[0];
+        const group = extraFields[firstKey] || {};
+        const current = (hiddenExtra && hiddenExtra.value) ? JSON.parse(hiddenExtra.value) : {};
+
+        const container = document.getElementById('extraFieldsContainer');
+        container.innerHTML = '';
+
+        Object.keys(group).forEach(rawName => {
+            const key = rawName.replace(/-/g, '_');
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'mb-3';
+
+            const label = document.createElement('label');
+            label.className = 'form-label';
+            label.textContent = rawName;
+            label.setAttribute('for', `extra_${key}`);
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'form-control';
+            input.id = `extra_${key}`;
+            input.name = key;
+            input.value = current[key] || group[rawName];
+
+            fieldDiv.appendChild(label);
+            fieldDiv.appendChild(input);
+            container.appendChild(fieldDiv);
+        });
+
+        const modal = new bootstrap.Modal(document.getElementById('extraModal'));
+        modal.show();
+    });
+
+    document.getElementById('extraForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+        const payload = {};
+        for (let [key, value] of formData.entries()) {
+            payload[key] = value;
+        }
+
+        const json = JSON.stringify(payload);
+        if (hiddenExtra) hiddenExtra.value = json;
+        extraPreview.innerHTML = formatPreview(payload);
+
+        // Hide modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('extraModal'));
+        modal.hide();
     });
 });
 </script>

@@ -44,6 +44,9 @@ class Post
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $extraData = null;
+
     #[ORM\ManyToOne(inversedBy: 'posts')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $author = null;
@@ -103,6 +106,17 @@ class Post
     public function setImage(?string $image): static
     {
         $this->image = $image;
+        return $this;
+    }
+
+    public function getExtraData(): ?string
+    {
+        return $this->extraData;
+    }
+
+    public function setExtraData(?string $extraData): static
+    {
+        $this->extraData = $extraData;
         return $this;
     }
 

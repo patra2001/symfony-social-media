@@ -1,10 +1,10 @@
 // Example starter JavaScript for disabling form submissions if there are invalid fields
-    tinymce.init({
-    selector: 'textarea',
-    height: 300,
-    plugins: 'lists link image table code',
-    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | bullist numlist | code',
-    });
+    // tinymce.init({
+    // selector: 'textarea',
+    // height: 300,
+    // plugins: 'lists link image table code',
+    // toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | bullist numlist | code',
+    // });
 (() => {
   'use strict'
 

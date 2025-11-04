@@ -1,0 +1,105 @@
+{% macro extra_data(form, extra_fields, form_id) %}
+    {# Hidden field (Symfony form field) #}
+    <div class="mb-3">
+        <label class="form-label">Additional data</label>
+        <div id="extraPicker_{{ form_id }}" class="border rounded p-3" style="cursor:pointer; min-height:48px;">
+            <small class="text-muted" id="extraPreview_{{ form_id }}">Additional data</small>
+        </div>
+    </div>
+
+    {# Modal for editing extra data #}
+    <div class="modal fade" id="extraModal_{{ form_id }}" tabindex="-1" aria-labelledby="extraModalLabel_{{ form_id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="extraModalLabel_{{ form_id }}">Edit Extra Data</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="extraForm_{{ form_id }}">
+                        <div id="extraFieldsContainer_{{ form_id }}"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" form="extraForm_{{ form_id }}" class="btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# JS block scoped to this macro instance #}
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const formId = '{{ form_id }}';
+        console.log(formId);
+        {# return false; #}
+        const picker = document.getElementById('extraPicker_' + formId);
+        const preview = document.getElementById('extraPreview_' + formId);
+        const modalEl = document.getElementById('extraModal_' + formId);
+        const container = document.getElementById('extraFieldsContainer_' + formId);
+        const hiddenExtra = document.querySelector('[name="{{ form.vars.full_name }}[extraData]"]');
+        const extraFields = {{ extra_fields|json_encode|raw }};
+
+        function formatPreview(data) {
+            if (!data || !Object.keys(data).length) return 'Add web url, data and others';
+            return Object.entries(data)
+                .map(([k, v]) => k.replace(/_/g, '-') + ': ' + v)
+                .join('<br>');
+        }
+
+        try {
+            let initial = {};
+            if (hiddenExtra && hiddenExtra.value) initial = JSON.parse(hiddenExtra.value);
+            preview.innerHTML = formatPreview(initial);
+        } catch (e) {}
+
+        if (picker) {
+            picker.addEventListener('click', function () {
+                const firstKey = Object.keys(extraFields)[0];
+                const group = extraFields[firstKey] || {};
+                const current = hiddenExtra && hiddenExtra.value ? JSON.parse(hiddenExtra.value) : {};
+
+                container.innerHTML = '';
+                Object.keys(group).forEach(rawName => {
+                    const key = rawName.replace(/-/g, '_');
+                    const div = document.createElement('div');
+                    div.className = 'mb-3';
+
+                    const label = document.createElement('label');
+                    label.className = 'form-label';
+                    label.textContent = rawName;
+                    label.setAttribute('for', `extra_${key}_${formId}`);
+
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'form-control';
+                    input.id = `extra_${key}_${formId}`;
+                    input.name = key;
+                    input.value = current[key] || group[rawName];
+
+                    div.appendChild(label);
+                    div.appendChild(input);
+                    container.appendChild(div);
+                });
+
+                new bootstrap.Modal(modalEl).show();
+            });
+        }
+
+        const extraForm = document.getElementById('extraForm_' + formId);
+        if (extraForm) {
+            extraForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const payload = {};
+                for (let [k, v] of formData.entries()) payload[k] = v;
+                const json = JSON.stringify(payload);
+                if (hiddenExtra) hiddenExtra.value = json;
+                preview.innerHTML = formatPreview(payload);
+                bootstrap.Modal.getInstance(modalEl).hide();
+            });
+        }
+    });
+    </script>
+{% endmacro %}

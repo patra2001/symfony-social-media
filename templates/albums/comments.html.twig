@@ -1,0 +1,7 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Comments for post {{ id }}{% endblock %}
+
+{% block body %}
+    <div id="comments-root" {{ react_component('Comments', { id: id, comments: comments }) }}></div>
+{% endblock %}

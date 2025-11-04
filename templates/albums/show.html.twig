@@ -1,0 +1,7 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Album detail{% endblock %}
+
+{% block body %}
+    <div id="album-detail" {{ react_component('AlbumDetail', { id: id, post: post }) }}></div>
+{% endblock %}
