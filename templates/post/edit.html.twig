@@ -1,5 +1,5 @@
 {% extends "base.html.twig" %}
-{# {% import 'macros/extra_data.html.twig' as extraData %} #}
+{% import 'macros/extra.html.twig' as extraData %}
 {% block title %}Edit Post{% endblock %}
 
 {% block body %}
@@ -59,26 +59,7 @@
                             <a href="{{ path('app_post_view', {'id': post.id}) }}" class="btn btn-secondary">Cancel</a>
                         </div>
                     {{ form_end(form) }}
-                <!-- Modal -->
-                    <div class="modal fade" id="extraModal" tabindex="-1" aria-labelledby="extraModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="extraModalLabel">Edit Extra Data</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form id="extraForm">
-                                        <div id="extraFieldsContainer"></div>
-                                    </form>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" form="extraForm" class="btn btn-primary">Submit</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {{ extraData.extra_data(form, extra_fields, 'createPostForm') }}
                 </div>
             </div>
         </div>
@@ -86,166 +67,6 @@
 </div>
 {% endblock %}
 {% block javascripts %}
-{# <script src="https://cdn.tiny.cloud/1/qg64hbuy7wzc6tt7oizuq4pztetrwm3y49u7badm1f9524gd/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script> #}
+ <div id="post-data" data-extra-fields='{{ extra_fields|json_encode|e('html_attr') }}' data-post='{{ post|json_encode|e('html_attr') }}'></div>
 {{ encore_entry_script_tags('post') }}
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('editPostForm');
-    const contentField = form.querySelector('[name="post[content]"]');
-    const imageField = form.querySelector('[name="post[image]"]');
-    const typeField = form.querySelector('[name="post[type]"]');
-
-    // Error divs
-    const typeErrorDiv = document.getElementById('typeError');
-    const contentErrorDiv = document.getElementById('contentError');
-    const imageErrorDiv = document.getElementById('imageError');
-
-    /* EXTRA modal logic */
-    const extraPicker = document.getElementById('extraPicker');
-    const extraPreview = document.getElementById('extraPreview');
-    const hiddenExtra = form.querySelector('[name="post[extraData]"]');
-
-    const extraFields = {{ extra_fields|json_encode|raw }};
-
-    function formatPreview(data) {
-        if (!data || !Object.keys(data).length) return 'Click to add web url, data and others';
-        let html = '';
-        for (let key in data) {
-            const rawName = key.replace(/_/g, '-');
-            html += rawName + ': ' + data[key] + '<br>';
-        }
-        return html;
-    }
-
-    // Only wire up the extra-data UI if the elements exist in the DOM.
-    if (extraPicker && extraPreview) {
-        try {
-            let initial = {};
-            const firstKey = Object.keys(extraFields)[0];
-            const group = extraFields[firstKey] || {};
-            for (let rawName in group) {
-                const key = rawName.replace(/-/g, '_');
-                initial[key] = group[rawName];
-            }
-            if (hiddenExtra && hiddenExtra.value) {
-                initial = JSON.parse(hiddenExtra.value);
-            }
-            extraPreview.innerHTML = formatPreview(initial);
-            if (hiddenExtra && !hiddenExtra.value && initial && Object.keys(initial).length) hiddenExtra.value = JSON.stringify(initial);
-        } catch (e) {
-        }
-
-        extraPicker.addEventListener('click', function () {
-            const firstKey = Object.keys(extraFields)[0];
-            const group = extraFields[firstKey] || {};
-            const current = (hiddenExtra && hiddenExtra.value) ? JSON.parse(hiddenExtra.value) : {};
-
-            const container = document.getElementById('extraFieldsContainer');
-            if (!container) return;
-            container.innerHTML = '';
-
-            Object.keys(group).forEach(rawName => {
-                const key = rawName.replace(/-/g, '_');
-                const fieldDiv = document.createElement('div');
-                fieldDiv.className = 'mb-3';
-
-                const label = document.createElement('label');
-                label.className = 'form-label';
-                label.textContent = rawName;
-                label.setAttribute('for', `extra_${key}`);
-
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.className = 'form-control';
-                input.id = `extra_${key}`;
-                input.name = key;
-                input.value = current[key] || group[rawName];
-
-                fieldDiv.appendChild(label);
-                fieldDiv.appendChild(input);
-                container.appendChild(fieldDiv);
-            });
-
-            // Show modal (guarded in case modal markup is absent)
-            const modalEl = document.getElementById('extraModal');
-            if (modalEl) {
-                const modal = new bootstrap.Modal(modalEl);
-                modal.show();
-            }
-        });
-
-        const extraFormEl = document.getElementById('extraForm');
-        if (extraFormEl) {
-            extraFormEl.addEventListener('submit', function (event) {
-                event.preventDefault();
-
-                const formData = new FormData(event.target);
-                const payload = {};
-                for (let [key, value] of formData.entries()) {
-                    payload[key] = value;
-                }
-
-                const json = JSON.stringify(payload);
-                if (hiddenExtra) hiddenExtra.value = json;
-                extraPreview.innerHTML = formatPreview(payload);
-
-                // Hide modal
-                const modalInstanceEl = document.getElementById('extraModal');
-                if (modalInstanceEl) {
-                    const modal = bootstrap.Modal.getInstance(modalInstanceEl);
-                    if (modal) modal.hide();
-                }
-            });
-        }
-    }
-
-    form.addEventListener('submit', function (event) {
-        let isValid = true;
-
-        [typeField, contentField, imageField].forEach(el => el?.classList.remove('is-invalid'));
-        [typeErrorDiv, contentErrorDiv, imageErrorDiv].forEach(div => {
-            div.textContent = '';
-            div.classList.add('d-none');
-        });
-
-        if (typeField && typeField.value.trim() === '') {
-            isValid = false;
-            typeField.classList.add('is-invalid');
-            typeErrorDiv.textContent = 'Please select a post type.';
-            typeErrorDiv.classList.remove('d-none');
-        }
-
-        const contentValue = tinymce.activeEditor ? tinymce.activeEditor.getContent({format: 'text'}).trim() : contentField.value.trim();
-        if (contentField && contentValue === '') {
-            isValid = false;
-            contentField.classList.add('is-invalid');
-            contentErrorDiv.textContent = 'Content cannot be empty.';
-            contentErrorDiv.classList.remove('d-none');
-        }
-
-        if (imageField && imageField.files.length > 0) {
-            const file = imageField.files[0];
-            const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-            if (!allowed.includes(file.type)) {
-                isValid = false;
-                imageField.classList.add('is-invalid');
-                imageErrorDiv.textContent = 'Only JPG, PNG, or WEBP images are allowed.';
-                imageErrorDiv.classList.remove('d-none');
-            } else if (file.size > 2 * 1024 * 1024) {
-                isValid = false;
-                imageField.classList.add('is-invalid');
-                imageErrorDiv.textContent = 'Image size must be less than 2MB.';
-                imageErrorDiv.classList.remove('d-none');
-            }
-        }
-
-        if (!isValid) {
-            event.preventDefault();
-            event.stopPropagation();
-            form.classList.add('was-validated');
-        }
-    });
-});
-</script>
 {% endblock %}
