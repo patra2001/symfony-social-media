@@ -11,8 +11,8 @@
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">Create a New Post</h5>
                 </div>
-                <div class="card-body">
-                    {{ form_start(form, {'attr': {'id': 'createPostForm', 'novalidate': 'novalidate', 'class': 'needs-validation'}}) }}
+                <div class="card-body" id="post-data" data-extra-fields='{{ extra_fields|json_encode|e('html_attr') }}' data-controller="post">
+                    {{ form_start(form, {'attr': {'id': 'createPostForm', 'novalidate': 'novalidate', 'class': 'needs-validation', 'data-turbo': 'true'}}) }}
                         <div class="mb-3">
                             {{ form_widget(form.type) }}
                                 <div class="alert text-danger mt-2 d-none" id="typeError">
@@ -34,7 +34,7 @@
                         <div class="mb-3">
                             {{ form_widget(form['extraData']) }}
                             <label class="form-label">Additional data</label>
-                            <div id="extraPicker" class="border rounded p-3" style="cursor:pointer; min-height:48px;">
+                            <div id="extraPicker" class="border rounded p-3" style="cursor:pointer; min-height:48px;" data-action="click->post#openExtra">
                                 <small class="text-muted" id="extraPreview">Additional data</small>
                             </div>
                         </div>
@@ -45,7 +45,6 @@
                         </div>
                     {{ form_end(form) }}
                         {{ extraData.extra_data(form, extra_fields, 'createPostForm') }}
-
                 </div>
             </div>
         </div>
@@ -54,7 +53,8 @@
 {% endblock %}
 
 {% block javascripts %}
-{# <script src="https://cdn.tiny.cloud/1/qg64hbuy7wzc6tt7oizuq4pztetrwm3y49u7badm1f9524gd/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script> #}
- <div id="post-data" data-extra-fields='{{ extra_fields|json_encode|e('html_attr') }}'></div>
-{{ encore_entry_script_tags('post') }}
+    {{ parent() }}
+    {# TinyMCE CDN (optional) <script src="https://cdn.tiny.cloud/1/.../tinymce.min.js"></script> #}
+    {# <div id="post-data" data-extra-fields='{{ extra_fields|json_encode|e('html_attr') }}'></div> #}
+    {{ encore_entry_script_tags('post') }}
 {% endblock %}

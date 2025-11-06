@@ -10,8 +10,8 @@
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">Edit Post</h5>
                 </div>
-                <div class="card-body">
-                    {{ form_start(form, {'attr': {'id' :'editPostForm', 'novalidate': 'novalidate', 'class': 'needs-validation'}}) }}
+                <div class="card-body" id="post-data" data-controller="post" data-extra-fields='{{ extra_fields|json_encode|e('html_attr') }}' data-post='{{ post|json_encode|e('html_attr') }}'>
+                    {{ form_start(form, {'attr': {'id' :'editPostForm', 'novalidate': 'novalidate', 'class': 'needs-validation', 'data-turbo': 'true'}}) }}
                         <div class="mb-3">
                             {{ form_widget(form.type) }}
                                 <div class="alert text-danger mt-2 d-none" id="typeError">
@@ -49,7 +49,7 @@
                         <div class="mb-3">
                             {{ form_widget(form['extraData']) }}
                             <label class="form-label">Additional data</label>
-                            <div id="extraPicker" class="border rounded p-3" style="cursor:pointer; min-height:48px;">
+                            <div id="extraPicker" class="border rounded p-3" style="cursor:pointer; min-height:48px;" data-action="click->post#openExtra">
                                 <small class="text-muted" id="extraPreview">Additional data</small>
                             </div>
                         </div>
@@ -59,7 +59,7 @@
                             <a href="{{ path('app_post_view', {'id': post.id}) }}" class="btn btn-secondary">Cancel</a>
                         </div>
                     {{ form_end(form) }}
-                    {{ extraData.extra_data(form, extra_fields, 'createPostForm') }}
+                    {{ extraData.extra_data(form, extra_fields, 'editPostForm') }}
                 </div>
             </div>
         </div>
@@ -67,6 +67,7 @@
 </div>
 {% endblock %}
 {% block javascripts %}
- <div id="post-data" data-extra-fields='{{ extra_fields|json_encode|e('html_attr') }}' data-post='{{ post|json_encode|e('html_attr') }}'></div>
-{{ encore_entry_script_tags('post') }}
+    {{ parent() }}
+    {# <div id="post-data" data-extra-fields='{{ extra_fields|json_encode|e('html_attr') }}' data-post='{{ post|json_encode|e('html_attr') }}'></div> #}
+    {{ encore_entry_script_tags('post') }}
 {% endblock %}

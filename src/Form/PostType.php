@@ -65,7 +65,7 @@ class PostType extends AbstractType
             ->add('image', FileType::class, [
                 'label' => 'Add an image (optional)',
                 'label_attr' => ['class' => 'form-label'],
-                'required' => true,
+                // 'required' => true,
                 'attr' => [
                     'class' => 'form-control',
                     'id' => 'post_image',

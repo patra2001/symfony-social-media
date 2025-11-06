@@ -6,7 +6,8 @@
         <small class="text-muted" id="extraPreview">Additional data</small>
     </div>
 </div> #}
-<div class="modal fade" id="extraModal" tabindex="-1" aria-labelledby="extraModalLabel" aria-hidden="true">
+<turbo-frame id="extra-frame">
+<div class="modal fade" id="extraModal" tabindex="-1" aria-labelledby="extraModalLabel" aria-hidden="true" data-post-target="extraModal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -14,8 +15,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="extraForm">
-                    <div id="extraFieldsContainer"></div>
+                <form id="extraForm" data-action="submit->post#submitExtra" data-post-target="extraForm">
+                    <div id="extraFieldsContainer" data-post-target="extraFieldsContainer"></div>
                 </form>
             </div>
             <div class="modal-footer">

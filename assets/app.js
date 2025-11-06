@@ -11,3 +11,5 @@ import './styles/calender.css';
 
 // start the Stimulus application
 import './bootstrap';
+import './controllers';
+console.log('Stimulus loaded');

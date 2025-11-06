@@ -30,76 +30,108 @@
 
     {# JS block scoped to this macro instance #}
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const formId = '{{ form_id }}';
-        console.log(formId);
-        {# return false; #}
-        const picker = document.getElementById('extraPicker_' + formId);
-        const preview = document.getElementById('extraPreview_' + formId);
-        const modalEl = document.getElementById('extraModal_' + formId);
-        const container = document.getElementById('extraFieldsContainer_' + formId);
-        const hiddenExtra = document.querySelector('[name="{{ form.vars.full_name }}[extraData]"]');
-        const extraFields = {{ extra_fields|json_encode|raw }};
+    (function () {
+        // Scope element ids using the provided form_id so multiple forms on the page work.
+        const formEl = document.getElementById('{{ form_id }}');
+        const extraPicker = document.getElementById('extraPicker_{{ form_id }}');
+        const extraPreview = document.getElementById('extraPreview_{{ form_id }}');
+        const hiddenExtra = formEl ? formEl.querySelector('[name="post[extraData]"]') : null;
+
+    // Read extra fields provided by the server via window.__POST_CONFIG__ (set by the template)
+    const extraFields = (window.__POST_CONFIG__ && window.__POST_CONFIG__.extra_fields) ? window.__POST_CONFIG__.extra_fields : {};
 
         function formatPreview(data) {
-            if (!data || !Object.keys(data).length) return 'Add web url, data and others';
-            return Object.entries(data)
-                .map(([k, v]) => k.replace(/_/g, '-') + ': ' + v)
-                .join('<br>');
+            if (!data || !Object.keys(data).length) return 'Click to add web url, data and others';
+            let html = '';
+            for (let key in data) {
+                const rawName = key.replace(/_/g, '-');
+                html += rawName + ': ' + data[key] + '<br>';
+            }
+            return html;
         }
 
-        try {
-            let initial = {};
-            if (hiddenExtra && hiddenExtra.value) initial = JSON.parse(hiddenExtra.value);
-            preview.innerHTML = formatPreview(initial);
-        } catch (e) {}
-
-        if (picker) {
-            picker.addEventListener('click', function () {
+        // Only wire up the extra-data UI if the elements exist in the DOM.
+        if (extraPicker && extraPreview) {
+            try {
+                let initial = {};
                 const firstKey = Object.keys(extraFields)[0];
                 const group = extraFields[firstKey] || {};
-                const current = hiddenExtra && hiddenExtra.value ? JSON.parse(hiddenExtra.value) : {};
+                for (let rawName in group) {
+                    const key = rawName.replace(/-/g, '_');
+                    initial[key] = group[rawName];
+                }
+                if (hiddenExtra && hiddenExtra.value) {
+                    initial = JSON.parse(hiddenExtra.value);
+                }
+                extraPreview.innerHTML = formatPreview(initial);
+                if (hiddenExtra && !hiddenExtra.value && initial && Object.keys(initial).length) hiddenExtra.value = JSON.stringify(initial);
+            } catch (e) {
+                // ignore
+            }
 
+            extraPicker.addEventListener('click', function () {
+                const firstKey = Object.keys(extraFields)[0];
+                const group = extraFields[firstKey] || {};
+                const current = (hiddenExtra && hiddenExtra.value) ? JSON.parse(hiddenExtra.value) : {};
+
+                const container = document.getElementById('extraFieldsContainer_{{ form_id }}');
+                if (!container) return;
                 container.innerHTML = '';
+
                 Object.keys(group).forEach(rawName => {
                     const key = rawName.replace(/-/g, '_');
-                    const div = document.createElement('div');
-                    div.className = 'mb-3';
+                    const fieldDiv = document.createElement('div');
+                    fieldDiv.className = 'mb-3';
 
                     const label = document.createElement('label');
                     label.className = 'form-label';
                     label.textContent = rawName;
-                    label.setAttribute('for', `extra_${key}_${formId}`);
+                    label.setAttribute('for', `extra_${key}_{{ form_id }}`);
 
                     const input = document.createElement('input');
                     input.type = 'text';
                     input.className = 'form-control';
-                    input.id = `extra_${key}_${formId}`;
+                    input.id = `extra_${key}_{{ form_id }}`;
                     input.name = key;
                     input.value = current[key] || group[rawName];
 
-                    div.appendChild(label);
-                    div.appendChild(input);
-                    container.appendChild(div);
+                    fieldDiv.appendChild(label);
+                    fieldDiv.appendChild(input);
+                    container.appendChild(fieldDiv);
                 });
 
-                new bootstrap.Modal(modalEl).show();
+                // Show modal (guarded in case modal markup is absent)
+                const modalEl = document.getElementById('extraModal_{{ form_id }}');
+                if (modalEl) {
+                    const modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                }
             });
-        }
 
-        const extraForm = document.getElementById('extraForm_' + formId);
-        if (extraForm) {
-            extraForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                const formData = new FormData(e.target);
-                const payload = {};
-                for (let [k, v] of formData.entries()) payload[k] = v;
-                const json = JSON.stringify(payload);
-                if (hiddenExtra) hiddenExtra.value = json;
-                preview.innerHTML = formatPreview(payload);
-                bootstrap.Modal.getInstance(modalEl).hide();
-            });
+            const extraFormEl = document.getElementById('extraForm_{{ form_id }}');
+            if (extraFormEl) {
+                extraFormEl.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    const formData = new FormData(event.target);
+                    const payload = {};
+                    for (let [key, value] of formData.entries()) {
+                        payload[key] = value;
+                    }
+
+                    const json = JSON.stringify(payload);
+                    if (hiddenExtra) hiddenExtra.value = json;
+                    extraPreview.innerHTML = formatPreview(payload);
+
+                    // Hide modal
+                    const modalInstanceEl = document.getElementById('extraModal_{{ form_id }}');
+                    if (modalInstanceEl) {
+                        const modal = bootstrap.Modal.getInstance(modalInstanceEl);
+                        if (modal) modal.hide();
+                    }
+                });
+            }
         }
-    });
+    })();
     </script>
 {% endmacro %}
