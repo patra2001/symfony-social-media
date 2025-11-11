@@ -1,12 +1,11 @@
 {% macro clients_extrafield_form(dropdownId, clientsextrafields, defaultextrafield) %}
 {% set normalizedDefault = defaultextrafield is iterable ? defaultextrafield : {} %}
-
+<turbo-frame id="extra-frame">
 <div 
     data-controller="extrafield"
     data-extrafield-extrafields-value="{{ clientsextrafields|json_encode }}"
     data-extrafield-current-value="{{ normalizedDefault|json_encode }}"
-    class="extrafield-container"
->
+    class="extrafield-container">
     <form method="post" action="{{ path('app_save_extrafield') }}">
         <input type="hidden" name="extrafield_data" value='{{ normalizedDefault|json_encode|e("html_attr") }}' data-extrafield-target="hiddenInput">
         <input type="hidden" name="_token" value="{{ csrf_token('save_extrafield') }}">
@@ -54,4 +53,5 @@
         </div>
     </div>
 </div>
+</turbo-frame>
 {% endmacro %}
