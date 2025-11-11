@@ -1,0 +1,106 @@
+{% macro clients_mission_form(form_id, presets, initial = {}) %}
+  {% set rawPresets = presets.clients_mission is defined and presets.clients_mission is iterable ? presets.clients_mission : presets %}
+  {% set presetItems = rawPresets is iterable ? rawPresets|filter((v) => v is iterable) : {} %}
+  {% set fallbackKey = presetItems|keys|first %}
+  {% set hasInitialState = initial is iterable and initial.data is defined %}
+  {% set initialKey = hasInitialState ? (initial.key ?? fallbackKey) : fallbackKey %}
+  {% set initialData = hasInitialState ? initial.data : {} %}
+  {% set activeDefaults = initialKey ? attribute(presetItems, initialKey)|default({}) : {} %}
+  {% set activeOverrides = initialKey ? attribute(initialData, initialKey)|default({}) : {} %}
+  {% if initialKey and activeDefaults is iterable %}
+    {% set normalizedData = initialData|merge({ (initialKey): activeDefaults|merge(activeOverrides) }) %}
+  {% else %}
+    {% set normalizedData = initialData %}
+  {% endif %}
+  {% set normalizedInitial = {
+    'key': initialKey,
+    'data': normalizedData
+  } %}
+  {% set previewData = attribute(normalizedInitial.data, initialKey)|default(activeDefaults) %}
+
+  <div class="clients-mission-widget" data-profile-extra-container>
+    <div class="mb-3">
+      <label class="form-label">Client Mission</label>
+      <div class="btn-group w-100"
+           role="group"
+           data-controller="profile-extra"
+           data-profile-extra-form-id-value="{{ form_id }}"
+           data-profile-extra-presets-value='{{ presetItems|json_encode|e('html_attr') }}'
+           data-profile-extra-initial-value='{{ normalizedInitial|json_encode|e('html_attr') }}'>
+        <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Choose Clients Mission
+        </button>
+        <ul class="dropdown-menu w-100" data-profile-extra-target="menu">
+          {% for key, preset in presetItems %}
+            {% set dropdownLabel = key|replace({'_': ' '})|title %}
+            {% if preset is iterable %}
+              {% set visibleValues = preset
+                |filter((value) => value is not empty)
+                |map((value) => value)
+              %}
+              {% if visibleValues is not empty %}
+                {% set dropdownLabel = visibleValues|join(' | ') %}
+              {% endif %}
+            {% endif %}
+            <li>
+              <a class="dropdown-item"
+                 href="#"
+                 data-action="profile-extra#select"
+                 data-profile-extra-key="{{ key }}">
+                {{ dropdownLabel }}
+              </a>
+            </li>
+          {% else %}
+            <li><span class="dropdown-item text-muted">No clients mission presets available</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="fw-semibold p-4 bg-light rounded-4 position-relative"
+         role="button"
+         tabindex="0"
+         data-action="click->profile-extra#openFromPreview keypress.enter->profile-extra#openFromPreview"
+         data-profile-extra-target="preview">
+      {% set visiblePreview = previewData is iterable ? previewData|filter((value) => value is not empty) : {} %}
+      {% if visiblePreview is iterable and visiblePreview|length %}
+        <div class="mb-2"><span class="badge bg-primary bg-opacity-10 text-primary">{{ initialKey|replace({'_': ' '})|title }}</span></div>
+        {% for field, value in visiblePreview %}
+          <div><strong style="color:#007bff; text-transform:capitalize;">{{ field|replace({'_': ' '})|replace({'-': ' '}) }}</strong>: {{ value }}</div>
+        {% endfor %}
+      {% else %}
+        <small class="text-muted">Add web url, data and others</small>
+      {% endif %}
+      <span class="position-absolute top-50 end-0 translate-middle-y pe-3 text-primary"><i class="bi bi-pencil-square"></i></span>
+    </div>
+    <input type="hidden"
+           name="profile_extra_data"
+           value='{{ normalizedInitial|json_encode|e('html_attr') }}'
+           data-profile-extra-target="input">
+  </div>
+
+  <div class="modal fade"
+       id="{{ form_id }}_clientsMissionModal"
+       tabindex="-1"
+       aria-labelledby="{{ form_id }}_clientsMissionModalLabel"
+       aria-hidden="true"
+       data-profile-extra-target="modal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form data-action="submit->profile-extra#submit">
+          <div class="modal-header">
+            <h5 class="modal-title" id="{{ form_id }}_clientsMissionModalLabel">Customize Clients Mission</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div data-profile-extra-modal-target="fields" class="row g-3"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endmacro %}

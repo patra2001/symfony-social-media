@@ -1,0 +1,57 @@
+{% macro clients_extrafield_form(dropdownId, clientsextrafields, defaultextrafield) %}
+{% set normalizedDefault = defaultextrafield is iterable ? defaultextrafield : {} %}
+
+<div 
+    data-controller="extrafield"
+    data-extrafield-extrafields-value="{{ clientsextrafields|json_encode }}"
+    data-extrafield-current-value="{{ normalizedDefault|json_encode }}"
+    class="extrafield-container"
+>
+    <form method="post" action="{{ path('app_save_extrafield') }}">
+        <input type="hidden" name="extrafield_data" value='{{ normalizedDefault|json_encode|e("html_attr") }}' data-extrafield-target="hiddenInput">
+        <input type="hidden" name="_token" value="{{ csrf_token('save_extrafield') }}">
+        <button type="submit" class="btn btn-success mt-3">Save extrafield</button>
+    </form>
+    <div 
+        class="border rounded p-3 my-3 bg-light cursor-pointer"
+        data-action="click->extrafield#openExtra"
+        data-extrafield-target="details">
+        <strong>Selected extrafield:</strong><br>
+        <p><strong>Web URL:</strong> {{ normalizedDefault.web_url ?? '—' }}</p>
+        <p><strong>Data:</strong> {{ normalizedDefault.data ?? '—' }}</p>
+        <p><strong>Others:</strong> {{ normalizedDefault.others ?? '—' }}</p>
+    </div>
+
+    {# --- Modal with dropdown inside --- #}
+    <div class="modal fade" tabindex="-1" data-extrafield-target="popup">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form data-action="submit->extrafield#submitForm" data-extrafield-target="form">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit extrafield Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="mb-3" data-extrafield-target="dropdown">
+                            <label class="form-label">Select extrafield</label>
+                            <select class="form-select" data-action="change->extrafield#selectextrafield">
+                                {% for extrafield in clientsextrafields %}
+                                    <option value="{{ loop.index0 }}" {% if extrafield.web_url == normalizedDefault.web_url %}selected{% endif %}>
+                                        {{ extrafield.web_url }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div data-extrafield-target="formField"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}

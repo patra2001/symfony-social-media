@@ -8,12 +8,15 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use App\Constant\PostConstant;
+
 
 #[Route('/profile')]
 class UserProfileController extends AbstractController
@@ -23,13 +26,34 @@ class UserProfileController extends AbstractController
         private SluggerInterface $slugger,
     ) {}
 
-    #[Route('/{id}', name: 'app_profile', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function view(UserRepository $userRepository, int $id): Response
+    #[Route('/{id}', name: 'app_profile', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
+    public function view(UserRepository $userRepository, int $id, Request $request,): Response
     { 
+        $routeName = $request->attributes->get('_route');
         try {
         $user = $userRepository->find($id);
         if (!$user) {
             throw $this->createNotFoundException('User not found');
+        }
+        // ['clients_extrafield'];
+        // dd($predefiendData);die;
+        $clientsextrafields = PostConstant::PostConstant($routeName);
+        // $clientsextrafields = $constants['clients_extrafield'] ?? [];
+        // dd($clientsextrafields);die;
+
+
+        $storedextrafield = $user->getClientsMissionData();
+        $defaultextrafield = [];
+
+        if ($storedextrafield) {
+            $decoded = json_decode($storedextrafield, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $defaultextrafield = $decoded;
+            }
+        }
+
+        if (empty($defaultextrafield) && !empty($clientsextrafields)) {
+            $defaultextrafield = $clientsextrafields[0];
         }
 
         // Get user's posts ordered by creation date
@@ -38,6 +62,8 @@ class UserProfileController extends AbstractController
         return $this->render('user/profile/view.html.twig', [
             'profile_user' => $user,
             'posts' => $posts,
+            'clientsextrafields' => $clientsextrafields,
+            'defaultextrafield' => $defaultextrafield,
         ]);
          } catch (\InvalidArgumentException $e) {
             $this->addFlash('danger', $e->getMessage());
@@ -182,6 +208,33 @@ class UserProfileController extends AbstractController
     {
         if (!$this->isCsrfTokenValid($intention, $token)) {
             throw $this->createAccessDeniedException('Invalid CSRF token');
+        }
+    }
+
+    #[Route('/save-extrafield', name: 'app_save_extrafield', methods: ['POST'])]
+    public function saveextrafield(Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        try{
+        $contentType = $request->headers->get('Content-Type', '');
+        if ($contentType && str_starts_with($contentType, 'application/json')) {
+            $extrafieldData = json_decode($request->getContent(), true);
+        } else {
+            $extrafieldData = json_decode($request->request->get('extrafield_data', ''), true);
+        }
+        if (!is_array($extrafieldData)) {
+            return new JsonResponse(['error' => 'Invalid extrafield payload'], 400);
+        }
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return new JsonResponse(['error' => 'Unauthorized'], 403);
+        }
+        $user->setClientsMissionData(json_encode($extrafieldData));
+        $em->persist($user);
+        $em->flush();
+
+        return new JsonResponse(['status' => 'success']);
+        } catch (\Excertion $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 400);
         }
     }
 }

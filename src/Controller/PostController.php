@@ -36,10 +36,11 @@ class PostController extends AbstractController
         $post = new Post();
         
         //additional data
-        $predefiendData = PostConstant::PostConstant();
-        $predefinedFormData = is_array($predefiendData) ? reset($predefiendData) : [];
+        $routeName = $request->attributes->get('_route');
+        $extraData = PostConstant::PostConstant($routeName);
+        $constData = is_array($extraData) ? reset($extraData) : [];
         if (method_exists($post, 'setExtraData')) {
-            $post->setExtraData(json_encode($predefinedFormData));
+            $post->setExtraData(json_encode($constData));
         }
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request);
@@ -74,7 +75,7 @@ class PostController extends AbstractController
 
         return $this->render('post/create.html.twig', [
             'form' => $form->createView(),
-            'extra_fields' => $predefiendData,
+            'extra_fields' => $extraData,
         ]);
          } catch (\Exception $e) {
             $this->addFlash('danger', $e->getMessage());
@@ -150,11 +151,12 @@ class PostController extends AbstractController
         $this->denyAccessUnlessGranted('edit', $post);
 
         // Build default extraData from PostConstant if not set
-        $predefiendData = PostConstant::PostConstant();
-        $predefinedFormData = is_array($predefiendData) ? reset($predefiendData) : [];
+        $routeName = $request->attributes->get('_route');
+        $extraData = PostConstant::PostConstant($routeName);
+        $constData = is_array($extraData) ? reset($extraData) : [];
         $defaultEmbed = [];
-        if (is_array($predefinedFormData)) {
-            foreach ($predefinedFormData as $fieldName => $defaultValue) {
+        if (is_array($constData)) {
+            foreach ($constData as $fieldName => $defaultValue) {
                 $key = str_replace('-', '_', $fieldName);
                 $defaultEmbed[$key] = $defaultValue;
             }
@@ -196,7 +198,7 @@ class PostController extends AbstractController
         return $this->render('post/edit.html.twig', [
             'post' => $post,
             'form' => $form->createView(),
-            'extra_fields' => $predefiendData,
+            'extra_fields' => $extraData,
         ]);
          } catch (\Exception $e) {
             $this->addFlash('danger', $e->getMessage());

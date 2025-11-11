@@ -1,8 +1,12 @@
 {% extends 'base.html.twig' %}
+{% import 'macros/clients_extrafield.html.twig' as extrafield_macros %}
 
 {% block title %}{{ profile_user.fullName }}'s Profile - Social Network{% endblock %}
 
 {% block body %}
+{#{{ dump(extra_fields) }}#}
+{# {{ dump(extra_fields['clients_extrafield'][0]) }} #}
+
 <div class="container py-5">
     <div class="position-relative overflow-hidden rounded-4 shadow-lg mb-5" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
         <div class="position-absolute top-0 end-0 opacity-25" style="width: 260px; height: 260px; background: radial-gradient(circle at center, rgba(255,255,255,0.45), rgba(255,255,255,0)); transform: translate(20%, -40%);"></div>
@@ -121,6 +125,11 @@
                             <div>
                                 <div class="fw-semibold text-muted text-uppercase small">Last Update</div>
                                 <div class="fw-semibold">{{ profile_user.updatedAt|date('F j, Y \a\t H:i') }}</div>
+                            </div>
+                        </li>
+                        <li class="d-flex align-items-center gap-3">
+                            <div class="container mt-5">
+                            {{ extrafield_macros.clients_extrafield_form('extra_data', clientsextrafields, defaultextrafield) }}
                             </div>
                         </li>
                     </ul>

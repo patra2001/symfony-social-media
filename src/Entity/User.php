@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\DBAL\Types\Types;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -60,6 +61,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $emailVerificationToken = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $clientsMissionData = null;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $emailVerificationSentAt = null;
@@ -315,6 +319,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+    public function getClientsMissionData(): ?string
+    {
+        return $this->clientsMissionData;
+    }
+
+    public function setClientsMissionData(?string $clientsMissionData): static
+    {
+        $this->clientsMissionData = $clientsMissionData;
         return $this;
     }
 
