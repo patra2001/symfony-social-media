@@ -1,0 +1,13 @@
+<div {% for key, value in dataAttributes %} data-{{ key }}="{{ value }}" {% endfor %}>
+    <button type="{{ type }}" class="{{ class }}"> {{ label }} </button>
+    <div class="alert alert-success p-1 px-2 mb-0"
+        id="{{ alertId }}"
+        role="alert"
+        data-copy-target="alert"
+        style="font-size: 0.85rem; display:none; white-space: nowrap;">
+        <span data-copy-target="alertMessage"></span>
+        {% if alertDismissible %}
+            <button type="button" class="btn-close ms-2" data-bs-dismiss="alert" aria-label="Close" ></button>
+        {% endif %}
+    </div>
+</div>

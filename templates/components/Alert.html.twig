@@ -1,0 +1,8 @@
+{% props type = 'success', message = '', dismissible = true, id = null, attributes = {} %}
+
+<div class="alert alert-{{ type }} {% if dismissible %}alert-dismissible fade show{% endif %}" {% if id %}id="{{ id }}"{% endif %} role="alert" {% for key, value in attributes %}{{ key }}="{{ value }}" {% endfor %}>
+    <span data-copy-target="alertMessage">{{ message }}</span>
+    {% if dismissible %}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    {% endif %}
+</div>

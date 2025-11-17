@@ -1,0 +1,5 @@
+{% props type = 'button', class = 'btn btn-primary', label = 'Button', attributes = {} %}
+
+<button type="{{ type }}" class="{{ class }}" {% for key, value in attributes %}data-{{ key }}="{{ value }}" {% endfor %}>
+    {{ label }}
+</button>

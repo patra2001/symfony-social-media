@@ -237,4 +237,6 @@ class UserProfileController extends AbstractController
             return new JsonResponse(['error' => $e->getMessage()], 400);
         }
     }
+
+
 }

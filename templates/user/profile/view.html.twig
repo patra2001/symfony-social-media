@@ -95,7 +95,24 @@
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm rounded-4 h-100">
                 <div class="card-body p-4">
-                    <h2 class="h5 fw-bold mb-4">Quick Facts</h2>
+                    <div class="d-flex justify-content-start align-items-center mb-4">
+                        <h2 class="h5 fw-bold mb-0 me-2">Quick Facts</h2>
+                        {# <button type="button" class="btn btn-success" data-controller="copy" data-action="click->copy#copyData" data-copy-entity-value="Post" data-copy-entity-id-value="{{ profile_user.id }}">Copy</button> #}
+                        {# <twig:CopyButton label="Copy" class="btn btn-secondary" :attributes="{'action': 'click->copy#copyData'}" /> #}
+                        {{ component('copy_button', {
+                             label: 'Copy',
+                             class: 'btn btn-secondary',
+                             dataAttributes: {
+                                 controller: 'copy',
+                                 action: 'click->copy#copyData',
+                                'copy-entity-value': 'User',
+                                'copy-entity-id-value': profile_user.id
+                             },
+                             alertId: 'copy-success',
+                             alertDismissible: true
+                         }) }}
+                    </div>
+
                     <ul class="list-unstyled d-grid gap-3">
                         <li class="d-flex align-items-center gap-3">
                             <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-3"><i class="bi bi-envelope-open"></i></div>
