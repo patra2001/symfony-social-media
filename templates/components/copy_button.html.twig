@@ -1,4 +1,5 @@
-<div {% for key, value in dataAttributes %} data-{{ key }}="{{ value }}" {% endfor %}>
+{% set copyText = this.copyData %}
+<div data-copy-text-value="{{ copyText }}" {% for key, value in dataAttributes %} data-{{ key }}="{{ value }}" {% endfor %}>
     <button type="{{ type }}" class="{{ class }}"> {{ label }} </button>
     <div class="alert alert-success p-1 px-2 mb-0"
         id="{{ alertId }}"

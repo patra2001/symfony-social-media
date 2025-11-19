@@ -99,7 +99,7 @@
                         <h2 class="h5 fw-bold mb-0 me-2">Quick Facts</h2>
                         {# <button type="button" class="btn btn-success" data-controller="copy" data-action="click->copy#copyData" data-copy-entity-value="Post" data-copy-entity-id-value="{{ profile_user.id }}">Copy</button> #}
                         {# <twig:CopyButton label="Copy" class="btn btn-secondary" :attributes="{'action': 'click->copy#copyData'}" /> #}
-                        {{ component('copy_button', {
+                        {# {{ component('copy_button', {
                              label: 'Copy',
                              class: 'btn btn-secondary',
                              dataAttributes: {
@@ -110,9 +110,22 @@
                              },
                              alertId: 'copy-success',
                              alertDismissible: true
-                         }) }}
+                         }) }} #}
+                        {{ component('copy_button', {
+                        label: 'Copy',
+                        class: 'btn btn-secondary',
+                        dataAttributes: {
+                            controller: 'copy',
+                            action: 'click->copy#copyData',
+                            'copy-entity-value': 'user',
+                            'copy-entity-id-value': profile_user.id
+                        },
+                        alertId: 'copy-success',
+                        alertDismissible: true,
+                        entity: 'user',
+                        entityType: profile_user.id
+                    }) }}
                     </div>
-
                     <ul class="list-unstyled d-grid gap-3">
                         <li class="d-flex align-items-center gap-3">
                             <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-3"><i class="bi bi-envelope-open"></i></div>
