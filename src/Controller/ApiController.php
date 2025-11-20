@@ -48,8 +48,6 @@ class ApiController extends AbstractController
         if (!class_exists($entityClass)) {return new JsonResponse(['error' => 'Invalid entity'], 400);}
         $data = $em->getRepository($entityClass)->find($id);
         if (!$data) {return new JsonResponse(['error' => 'User not found'], 404);}
-
-        // dd($data);
         switch ($entity) {
         case 'user':
             $output .= "Name: " . $data->getFirstName() . " " . $data->getLastName() . PHP_EOL;
@@ -60,8 +58,6 @@ class ApiController extends AbstractController
         case 'post':
             $output .= "Title: " . $data->getTitle() . PHP_EOL;
             $output .= "Content: " . $data->getContent() . PHP_EOL;
-            // $output .= "LikeCount: " . $data->getLikeCount() . PHP_EOL;
-            // $output .= "Created: " . $data->getCreatedAt()->format('Y-m-d') . PHP_EOL;
             break;
     }
 
